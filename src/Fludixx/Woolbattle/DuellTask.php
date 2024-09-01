@@ -3,34 +3,37 @@
 namespace Fludixx\Woolbattle;
 
 use pocketmine\item\Item;
-use pocketmine\level\Level;
+use pocketmine\world\World;
 use pocketmine\scheduler\Task;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat as f;
+use pocketmine\player\GameMode;
+
+use Fludixx\Woolbattle\Woolbattle;
 
 class DuellTask extends Task {
 
-	public $level;
+	public $world;
 	public $pl;
 
-	public function __construct(Woolbattle $pl, Level $level)
+	public function __construct(Woolbattle $pl, World $world)
 	{
-		$this->level = $level;
+		$this->world = $world;
 		$this->pl = $pl;
 	}
 
-	public function onRun(int $currentTick)
+	public function onRun() : void
 	{
-		$level = $this->level;
-		$players = $level->getPlayers();
-		$inLevel = NULL;
+		$world = $this->world;
+		$players = $world->getPlayers();
+		$inWorld = NULL;
 		foreach($players as $player) {
-			if($player->getGamemode() == 0) {
-				$inLevel++;
+			if($player->getGamemode() === GameMode::SURVIVAL) {
+				$inWorld++;
 			}
 		}
 		foreach($players as $player) {
-			if ($player->getGamemode() == 0) {
+			if ($player->getGamemode() === GameMode::SURVIVAL) {
 				$lifes = $this->pl->players[$player->getName()]["lifes"];
 				$oplayername = $this->pl->players[$player->getName()]["ms"];
 				$olifes = $this->pl->players[$oplayername]["lifes"];
@@ -75,11 +78,11 @@ class DuellTask extends Task {
 						. $this->pl->endings[$this->pl->configtype], $this->pl->configtype);
 					$c->set("elo", (int)$c->get("elo") + $elo);
 					$c->save();
-					$player->teleport($this->pl->getServer()->getDefaultLevel()->getSafeSpawn());
+					$player->teleport($this->pl->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 					foreach($players as $spec) {
 						if($spec->getGamemode() != 0) {
 							$spec->setGamemode(0);
-							$spec->teleport($this->pl->getServer()->getDefaultLevel()->getSafeSpawn());
+							$spec->teleport($this->pl->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 						}
 					}
 					$level->unload();
