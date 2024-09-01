@@ -2,8 +2,10 @@
 
 namespace Fludixx\Woolbattle;
 
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
+
+use Fludixx\Woolbattle\Woolbattle;
 
 class Cooldown extends Task {
 
@@ -16,7 +18,7 @@ class Cooldown extends Task {
 		$this->player = $player;
 	}
 
-	public function onRun(int $currentTick)
+	public function onRun() : void
 	{
 		$this->pl->players[$this->player->getName()]["cooldown"] = FALSE;
 		$this->pl->getScheduler()->cancelTask($this->getTaskId());
